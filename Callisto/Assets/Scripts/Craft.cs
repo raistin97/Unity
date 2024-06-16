@@ -7,7 +7,7 @@ public class Crafting : MonoBehaviour
     public InventoryManager inventoryManager;
     public Item item;
     public Chest chest;
-
+    public InventoryText inventoryText;
     private Recipe pickaxeRockRecipe = new Recipe();
     private Recipe pickaxeIronRecipe = new Recipe();
     private Recipe axeRockRecipe = new Recipe();
@@ -15,12 +15,8 @@ public class Crafting : MonoBehaviour
     private Recipe goldFigureRecipe = new Recipe();
     private Recipe furnaceRecipe = new Recipe();
 
-    public GameObject loadingSpinner;
-    public float creationTime = 2f;
-
     void Start()
     {
-        loadingSpinner.SetActive(false);
         InitializeRecipes();
     }
 
@@ -68,9 +64,12 @@ public class Crafting : MonoBehaviour
 
     private IEnumerator CreateItem()
     {
-        loadingSpinner.SetActive(true);
-        yield return new WaitForSeconds(creationTime);
-        loadingSpinner.SetActive(false);
+        for (int i = 1; i <= 10; i++)
+        {
+            Debug.Log($"Counting: {i}");
+            inventoryText.DisplayCounterMessage(item,i);
+            yield return new WaitForSeconds(2); 
+        }
         CompleteCrafting();
     }
 
@@ -79,12 +78,12 @@ public class Crafting : MonoBehaviour
         if (inventoryManager.IsInventoryFull() && chest.Openchest())
         {
             chest.AddItemToChest(item);
-            Debug.Log($"{item.name} został stworzony w skrzynce");
+            inventoryText.DisplayItemCreateMessage(item);
         }
         else
         {
             inventoryManager.AddItem(item);
-            Debug.Log($"{item.name} został stworzony");
+                        inventoryText.DisplayItemCreateMessage(item);
         }
     }
 
@@ -97,7 +96,7 @@ public class Crafting : MonoBehaviour
         }
         else
         {
-            Debug.Log($"{recipe.result.name} nie został stworzony");
+            inventoryText.DisplayItemNotCreateMessage(item);
         }
     }
 
