@@ -15,6 +15,8 @@ TagManager:
   - Pick
   - Rock
   - Chest
+  - NameTagCanvas
+  - TextCanvas
   layers:
   - Default
   - TransparentFX
