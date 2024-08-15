@@ -15,7 +15,7 @@ public class Crafting : MonoBehaviour
     private Recipe axeIronRecipe = new Recipe();
     private Recipe goldFigureRecipe = new Recipe();
     private Recipe furnaceRecipe = new Recipe();
-    private Recipe trophyRecipe= new Recipe();
+    private Recipe trophyRecipe = new Recipe();
 
     void Start()
     {
