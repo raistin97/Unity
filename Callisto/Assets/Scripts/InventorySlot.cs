@@ -18,7 +18,8 @@ public class InventorySlot : MonoBehaviour, IDropHandler
         Deselect();
     }
 
-    public void Select(){
+    public void Select()
+    {
         image.color = selectedColor;
         InventoryItem inventoryItem = GetComponentInChildren<InventoryItem>();
         if (inventoryItem != null)
@@ -28,8 +29,8 @@ public class InventorySlot : MonoBehaviour, IDropHandler
         }
     }
 
-
-        public void Deselect(){
+    public void Deselect()
+    {
         image.color = notSelectedColor;
         selectedItemName = "";
     }
