@@ -7,16 +7,18 @@ public class FurnaceManager : MonoBehaviour
     public InventorySlot fuelSlot;
     public InventorySlot oreSlot;
     public InventorySlot productSlot;
-    public Item item;
+    public Item ironBarItem;
+    public Item goldBarItem;
     public InventoryManager inventoryManager;
     public float smeltingTime = 10.0f;
 
     private int time;
     private int productAmount;
+    private Item currentProductItem;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.S)) // Example trigger to start smelting
+        if (Input.GetKeyDown(KeyCode.S))
         {
             StartSmelting();
         }
@@ -34,77 +36,64 @@ public class FurnaceManager : MonoBehaviour
     bool CheckOreAndFuel(out string inventoryContents)
     {
         inventoryContents = "";
-
-        // Debugging: Check if the slots themselves are not null
-        if (fuelSlot == null)
+        if (fuelSlot == null || oreSlot == null)
         {
-            Debug.Log("Fuel slot is null");
-            return false;
-        }
-        if (oreSlot == null)
-        {
-            Debug.Log("Ore slot is null");
+            Debug.Log("Fuel slot or Ore slot is null");
             return false;
         }
 
         InventoryItem fuelSlotItem = fuelSlot.GetComponentInChildren<InventoryItem>();
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
 
-        // Debugging: Check if the items in the slots are not null
-        if (fuelSlotItem == null)
+        if (fuelSlotItem == null || oreSlotItem == null)
         {
-            Debug.Log("Fuel slot item is missing");
-        }
-        if (oreSlotItem == null)
-        {
-            Debug.Log("Ore slot item is missing");
+            Debug.Log("Missing fuel or ore item");
+            return false;
         }
 
-        if (oreSlotItem != null && fuelSlotItem != null)
+        if ((oreSlotItem.item.itemName == "IronOre" || oreSlotItem.item.itemName == "GoldOre") && fuelSlotItem.item.itemName == "Stick")
         {
-            Debug.Log("Ore slot item name: " + oreSlotItem.item.itemName);
-            Debug.Log("Fuel slot item name: " + fuelSlotItem.item.itemName);
-
-            if (oreSlotItem.item.itemName == "IronOre" && fuelSlotItem.item.itemName == "Stick")
+            if (fuelSlotItem.count >= 3)
             {
-                if (fuelSlotItem.count >= 3)
+                if (oreSlotItem.item.itemName == "IronOre")
                 {
+                    currentProductItem = ironBarItem;
                     productAmount = (int)Mathf.Ceil(oreSlotItem.count * 0.5f);
-
-                    if (oreSlotItem.count >= 3 && oreSlotItem.count < 7)
-                    {
-                        time = 5;
-                    }
-                    else if (oreSlotItem.count >= 70 && oreSlotItem.count < 90)
-                    {
-                        time = 10;
-                    }
-                    else if (oreSlotItem.count >= 90 && oreSlotItem.count < 100)
-                    {
-                        time = 15;
-                    }
-                    else if (oreSlotItem.count == 100)
-                    {
-                        time = 20;
-                    }
-
-                    return true;
                 }
-                else
+                else if (oreSlotItem.item.itemName == "GoldOre")
                 {
-                    Debug.Log("Not enough fuel");
-                    return false;
+                    currentProductItem = goldBarItem;
+                    productAmount = (int)Mathf.Ceil(oreSlotItem.count * 0.3f);
                 }
+
+                if (oreSlotItem.count >= 3 && oreSlotItem.count < 7)
+                {
+                    time = 5;
+                }
+                else if (oreSlotItem.count >= 70 && oreSlotItem.count < 90)
+                {
+                    time = 10;
+                }
+                else if (oreSlotItem.count >= 90 && oreSlotItem.count < 100)
+                {
+                    time = 15;
+                }
+                else if (oreSlotItem.count == 100)
+                {
+                    time = 20;
+                }
+
+                return true;
             }
             else
             {
-                Debug.Log("Invalid items for smelting");
+                Debug.Log("Not enough fuel");
                 return false;
             }
         }
         else
         {
-            Debug.Log("Missing items");
+            Debug.Log("Invalid items for smelting");
             return false;
         }
     }
@@ -115,7 +104,7 @@ public class FurnaceManager : MonoBehaviour
         InventoryItem oreSlotItem = oreSlot.GetComponentInChildren<InventoryItem>();
         if (fuelSlotItem == null || oreSlotItem == null)
         {
-            Debug.Log("Fuel or Ore slot item is null");
+            Debug.Log("No fuel or ore to smelt");
             yield break;
         }
 
@@ -123,52 +112,47 @@ public class FurnaceManager : MonoBehaviour
         {
             yield return new WaitForSeconds(time / 5);
 
-            // Decrease fuel count
             if (fuelSlotItem != null)
             {
                 fuelSlotItem.count--;
                 if (fuelSlotItem.count <= 0)
                 {
                     Destroy(fuelSlotItem.gameObject);
-                    fuelSlotItem = null; // Prevent further access to this now-null object
+                    fuelSlotItem = null;
                 }
                 else
                 {
                     fuelSlotItem.RefreshCount();
                 }
             }
-
-            // Decrease ore count
             if (oreSlotItem != null)
             {
                 oreSlotItem.count--;
                 if (oreSlotItem.count <= 0)
                 {
                     Destroy(oreSlotItem.gameObject);
-                    oreSlotItem = null; // Prevent further access to this now-null object
+                    oreSlotItem = null;
                 }
                 else
                 {
                     oreSlotItem.RefreshCount();
                 }
             }
-                  InventoryItem productItem = productSlot.GetComponentInChildren<InventoryItem>();
-                  Debug.Log("Product item" + productItem);
+
+            InventoryItem productItem = productSlot.GetComponentInChildren<InventoryItem>();
             if (productItem == null)
             {
-                     inventoryManager.SpawnNewItem(item, productSlot);
-                    Debug.Log("Ore count after decrement: " + productItem);
-                }
-                else
-                {
-                    productItem.count+=productAmount;
-                    productItem.RefreshCount();
-                }
-            
+                inventoryManager.SpawnNewItem(currentProductItem, productSlot);
+                productItem = productSlot.GetComponentInChildren<InventoryItem>();
+            }
+            else
+            {
+                productItem.count += productAmount;
+                productItem.RefreshCount();
+            }
         }
     }
 
-    // New method to be linked with the "Create" button
     public void CreateNewObject()
     {
         StartSmelting();

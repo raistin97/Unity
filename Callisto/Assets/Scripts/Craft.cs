@@ -5,7 +5,7 @@ using UnityEngine;
 public class Crafting : MonoBehaviour
 {
     public InventoryManager inventoryManager;
-    public Item item;
+    public Item item1;
     public Chest chest;
 
     public InventoryText inventoryText;
@@ -74,7 +74,7 @@ public class Crafting : MonoBehaviour
         for (int i = 10; i >= 1; i--)
         {
             Debug.Log($"Counting: {i}");
-            inventoryText.DisplayCounterMessage(item, i);
+            inventoryText.DisplayCounterMessage(item1, i);
             yield return new WaitForSeconds(2);
         }
         CompleteCrafting();
@@ -84,13 +84,13 @@ public class Crafting : MonoBehaviour
     {
         if (inventoryManager.IsInventoryFull() && chest.Openchest())
         {
-            chest.AddItemToChest(item);
-            inventoryText.DisplayItemCreateMessage(item);
+            chest.AddItemToChest(item1);
+            inventoryText.DisplayItemCreateMessage(item1);
         }
         else
         {
-            inventoryManager.AddItem(item);
-            inventoryText.DisplayItemCreateMessage(item);
+            inventoryManager.AddItem(item1);
+            inventoryText.DisplayItemCreateMessage(item1);
         }
     }
 
@@ -103,7 +103,7 @@ public class Crafting : MonoBehaviour
         }
         else
         {
-            inventoryText.DisplayItemNotCreateMessage(item);
+            inventoryText.DisplayItemNotCreateMessage(item1);
         }
     }
 

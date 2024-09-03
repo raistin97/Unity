@@ -16,7 +16,7 @@ public class DisappearAndReappear : MonoBehaviour
     void Update()
     {
         float distance = Vector3.Distance(transform.position, player.position);
-        Debug.Log("Distance to player: " + distance);
+        //Debug.Log("Distance to player: " + distance);
 
         if (distance <= disappearDistance)
         {
