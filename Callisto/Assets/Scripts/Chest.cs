@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 public class Chest : MonoBehaviour
 {
-    public Transform player;  
-        public InventoryManager inventoryMenager;
-    public GameObject chestUI;  
-    public float interactionDistance = 3f;  
-    private bool isOpen = false; 
+    public Transform player;
+    public InventoryManager inventoryMenager;
+    public GameObject chestUI;
+    public float interactionDistance = 3f;
+    private bool isOpen = false;
 
-    public InventorySlot[] chestSlots; 
+    public InventorySlot[] chestSlots;
     private List<InventoryItem> chestItems = new List<InventoryItem>();
 
     void Start()
     {
         if (chestUI != null)
         {
-            chestUI.SetActive(false); 
+            chestUI.SetActive(false);
         }
     }
 
@@ -28,12 +28,12 @@ public class Chest : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.E))
             {
                 ToggleChest();
-                
+
             }
         }
         else if (open)
         {
-            CloseChest();            
+            CloseChest();
         }
     }
 
@@ -44,7 +44,7 @@ public class Chest : MonoBehaviour
 
     private void ToggleChest()
     {
-        isOpen = !isOpen; 
+        isOpen = !isOpen;
         if (isOpen)
         {
             Debug.Log("Chest opened!");
@@ -69,70 +69,74 @@ public class Chest : MonoBehaviour
         {
             if (chestUI != null)
             {
-                chestUI.SetActive(true); 
+                chestUI.SetActive(true);
             }
         }
         else
         {
             if (chestUI != null)
             {
-                chestUI.SetActive(false); 
+                chestUI.SetActive(false);
             }
         }
     }
 
-public Dictionary<string, int> GetItemsFromChestWithCounts()
-{
-    Dictionary<string, int> itemCounts = new Dictionary<string, int>();  
-
-    if (chestSlots == null)
+    public Dictionary<string, int> GetItemsFromChestWithCounts()
     {
-        Debug.LogWarning("Miejsce jest puste");
-        return itemCounts;
-    }
+        Dictionary<string, int> itemCounts = new Dictionary<string, int>();
 
-    for (int i = 0; i < chestSlots.Length; i++)
-    {
-        InventorySlot slot = chestSlots[i];
-        InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
-
-        if (itemInSlot != null && itemInSlot.item != null)
+        if (chestSlots == null)
         {
-            string itemName = itemInSlot.item.itemName;
-            if (itemCounts.ContainsKey(itemName))
+            Debug.LogWarning("Miejsce jest puste");
+            return itemCounts;
+        }
+
+        for (int i = 0; i < chestSlots.Length; i++)
+        {
+            InventorySlot slot = chestSlots[i];
+            InventoryItem itemInSlot = slot.GetComponentInChildren<InventoryItem>();
+
+            if (itemInSlot != null && itemInSlot.item != null)
             {
-                itemCounts[itemName] += itemInSlot.count;
+                string itemName = itemInSlot.item.itemName;
+                if (itemCounts.ContainsKey(itemName))
+                {
+                    itemCounts[itemName] += itemInSlot.count;
+                }
+                else
+                {
+                    itemCounts[itemName] = itemInSlot.count;
+                }
+
+                Debug.Log($"Miejsce {i}: {itemName}, Ilosc: {itemInSlot.count}");
             }
             else
             {
-                itemCounts[itemName] = itemInSlot.count;
+                Debug.Log($"Miejsce {i} jest puste");
             }
+        }
+        foreach (var item in itemCounts)
+        {
+            Debug.Log($"Przedmiot: {item.Key}, Ilosc: {item.Value}");
+        }
 
-            Debug.Log($"Miejsce {i}: {itemName}, Ilosc: {itemInSlot.count}");
+        return itemCounts;
+    }
+
+    public bool Openchest()
+    {
+        if (chestUI.activeSelf)
+        {
+            Debug.Log("Chest is opnen");
+            return true;
         }
         else
         {
-            Debug.Log($"Miejsce {i} jest puste");
-        }
-    }
-    foreach (var item in itemCounts)
-    {
-        Debug.Log($"Przedmiot: {item.Key}, Ilosc: {item.Value}");
-    }
-
-    return itemCounts;  
-}
-
-    public bool Openchest(){
-        if(chestUI.activeSelf){
-                        Debug.Log("Chest is opnen");
-                  return true;
-        }else{
-              //Debug.Log("Chest is close");
+            //Debug.Log("Chest is close");
             return false;
         }
     }
-    
+
     public bool RemoveItemChest(string itemName, int quantity)
     {
         int remainingQuantity = quantity;
@@ -157,7 +161,7 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
                 else
                 {
                     remainingQuantity -= itemInSlot.count;
-                    Destroy(itemInSlot.gameObject); 
+                    Destroy(itemInSlot.gameObject);
                 }
             }
         }
@@ -166,7 +170,7 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
         return false;
     }
 
-    
+
     public bool AddItemToChest(Item item)
     {
         for (int i = 0; i < chestSlots.Length; i++)
@@ -176,7 +180,7 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
                 slot.GetComponentInChildren<InventoryItem>();
             if (
                 itemInSlot != null &&
-                itemInSlot.item == item 
+                itemInSlot.item == item
             )
             {
                 itemInSlot.count++;
@@ -191,7 +195,7 @@ public Dictionary<string, int> GetItemsFromChestWithCounts()
                 slot.GetComponentInChildren<InventoryItem>();
             if (itemInSlot == null)
             {
-                inventoryMenager.SpawnNewItem (item, slot);
+                inventoryMenager.SpawnNewItem(item, slot);
                 return true;
             }
         }
