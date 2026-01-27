@@ -63,7 +63,7 @@ public class MiningScript : MonoBehaviour
             {
                 modifiedGoldChance = 5;
             }
-            else 
+            else
             {
                 modifiedGoldChance = 0;
             }

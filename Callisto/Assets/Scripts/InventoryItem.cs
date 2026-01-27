@@ -2,9 +2,12 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+public class
+InventoryItem
+: MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
 {
     public Image image;
+
     public Text countText;
 
     [HideInInspector]
@@ -49,59 +52,39 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     public void OnEndDrag(PointerEventData eventData)
     {
         image.raycastTarget = true;
-        transform.SetParent(parentAfterDrag);
+        transform.SetParent (parentAfterDrag);
         transform.localPosition = Vector3.zero;
     }
 
     public void OnDrop(PointerEventData eventData)
     {
-        InventoryItem droppedItem = eventData.pointerDrag.GetComponent<InventoryItem>();
+        InventoryItem droppedItem =eventData.pointerDrag.GetComponent<InventoryItem>();
         if (droppedItem != null && droppedItem != this)
         {
             if (item.stackable && item.itemID == droppedItem.item.itemID)
             {
-                // If both items are stackable and of the same type, combine them
-                CombineItems(droppedItem);
+                if (count < 5)
+                {
+                    count += droppedItem.count; 
+                    RefreshCount();
+                    count = Mathf.Min(count, 5);
+                    Destroy(droppedItem.gameObject);
+                }
             }
             else
             {
-                // If items are not stackable or different types, swap them
-                SwapItems(droppedItem);
+                Item tempItem = item;
+                int tempCount = count;
+
+                InitialiseItem(droppedItem.item);
+                droppedItem.InitialiseItem (tempItem);
+
+                count = droppedItem.count;
+                droppedItem.count = tempCount;
+
+                RefreshCount();
+                droppedItem.RefreshCount();
             }
         }
-    }
-
-    private void CombineItems(InventoryItem droppedItem)
-    {
-        int totalItemCount = count + droppedItem.count;
-        if (totalItemCount <= 4)
-        {
-            count = totalItemCount;
-            RefreshCount();
-            Destroy(droppedItem.gameObject);
-        }
-        else
-        {
-            count = 4;
-            droppedItem.count = totalItemCount - 4;
-            RefreshCount();
-            droppedItem.RefreshCount();
-        }
-    }
-
-    private void SwapItems(InventoryItem droppedItem)
-    {
-        // Swap item data
-        Item tempItem = item;
-        int tempCount = count;
-
-        InitialiseItem(droppedItem.item);
-        droppedItem.InitialiseItem(tempItem);
-
-        count = droppedItem.count;
-        droppedItem.count = tempCount;
-
-        RefreshCount();
-        droppedItem.RefreshCount();
     }
 }
